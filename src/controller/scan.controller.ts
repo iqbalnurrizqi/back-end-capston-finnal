@@ -56,9 +56,15 @@ export const scanController = async (req: Request, res: Response): Promise<void>
 export const addScanController = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId: string = req.user?.id; // Assuming `authMiddleware` attaches `user` to `req`
-    const { image_uri, skin_type, skin_issues }: scanType = req.body;
+    const { image_uri, skin_type, skin_issues, product_type, product_name }: scanType = req.body;
 
-    console.log("Received scan data:", { image_uri, skin_type, skin_issues });
+    console.log("Received scan data:", {
+      image_uri,
+      skin_type,
+      skin_issues,
+      product_type,
+      product_name,
+    });
 
     // Validate the request body
     if (!skin_type || !skin_issues) {
@@ -77,6 +83,8 @@ export const addScanController = async (req: Request, res: Response): Promise<vo
       image_uri: image_uri || null, // Optional image URI
       skin_type,
       skin_issues,
+      product_type: product_type || null, // Optional product type
+      product_name: product_name || null, // Optional product
       date: new Date().toISOString(), // Save the timestamp
     };
     console.log("Saving scan data to Firestore:", scanData);

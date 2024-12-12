@@ -4,8 +4,6 @@ import { Request, Response } from "express";
 
 export const homeController = async (req: Request, res: Response) => {
   try {
-
-
     // Simulasi pengambilan produk rekomendasi dari Firestore
     const productsSnapshot = await db
       .collection("products")
