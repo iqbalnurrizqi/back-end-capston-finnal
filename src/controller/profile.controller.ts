@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { db } from "../config/firebaseConfig";
+import { bucket, db } from "../config/firebaseConfig";
 import { profileType } from "../types/profileType";
 
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -181,3 +181,51 @@ export const updateProfileData = async (req: Request, res: Response) => {
     res.status(500).send({ status: false, statusCode:500, message: error.message });
   }
 };
+
+export const updateFotoProfile = async (req: any, res: Response) => {
+       try {
+         const userId = req.user.id; // Extract user ID from middleware
+
+         // Validate file upload
+         if (!req.file) {
+          res.status(400).send({
+             status: false,
+             statusCode: 400,
+             message: "No file uploaded. Please provide a JPEG or PNG image.",
+           });
+         }
+
+         // Generate unique filename for the uploaded photo
+         const filename = `users/${userId}/profile-${Date.now()}-${
+           req.file.originalname || "photo"}`;
+
+         // Upload the file to Firebase Storage
+         const file = bucket.file(filename);
+         await file.save(req.file.buffer, {
+           contentType: req.file.mimetype,
+           public: true,
+         });
+
+         // Generate public URL for the uploaded photo
+         const photoUrl = `https://storage.googleapis.com/${bucket.name}/${filename}`;
+
+         // Update user's profile photo URL in Firestore
+         const userRef = db.collection("users").doc(userId);
+         await userRef.update({ photo_url: photoUrl });
+
+         // Respond with success
+        res.status(200).send({
+           status: true,
+           statusCode: 200,
+           message: "Profile photo updated successfully",
+           photo_url: photoUrl,
+         });
+       } catch (error) {
+         console.error("Error updating profile photo:", error);
+        res.status(500).send({
+           status: false,
+            statusCode: 500,
+           message: "Failed to update profile photo.",
+         });
+       }
+     };
