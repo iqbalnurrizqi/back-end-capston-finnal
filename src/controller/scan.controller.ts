@@ -18,7 +18,7 @@ export const scanController = async (req: Request, res: Response): Promise<void>
     // Fetch user's scan history
     console.log("Fetching scan history for user ID:", userId);
     const scansSnapshot = await db
-      .collection("scan_results")
+      .collection("users")
       .where("userId", "==", userId)
       .orderBy("date", "desc")
       .get();
